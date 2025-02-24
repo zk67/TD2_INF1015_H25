@@ -16,7 +16,7 @@ public:
 	~ListeFilms();
 	void ajouterFilm(Film* film);
 	void enleverFilm(const Film* film);
-	Acteur* trouverActeur(const std::string& nomActeur) const;
+	shared_ptr<Acteur> trouverActeur(const std::string & nomActeur) const;
 	std::span<Film*> enSpan() const;
 	int size() const { return nElements; }
 
@@ -31,19 +31,18 @@ private:
 struct ListeActeurs {
 	private:
 		int capacite, nElements;
-		unique_ptr<Acteur* []> ptrActeurs ; // Pointeur vers un tableau de Acteur*, chaque Acteur* pointant vers un Acteur.
+		unique_ptr<shared_ptr<Acteur>[]> ptrActeurs ; // Pointeur vers un tableau de Acteur*, chaque Acteur* pointant vers un Acteur.
 
 	public:
 		ListeActeurs(int nouvelleCap) {
 			capacite = nouvelleCap;
 			nElements = 0;
-			ptrActeurs = make_unique<Acteur*[]>(capacite);
+			ptrActeurs = make_unique<shared_ptr<Acteur>[]>(capacite);
 		}
-
-		std::span<Acteur*> spanListeActeurs() const;
-		//{
-		//	return span<Acteur*>(ptrActeurs.get(), nElements);
-		//}
+		
+		std::span<shared_ptr<Acteur>> spanListeActeurs() const{
+			return span<shared_ptr<Acteur>>(ptrActeurs.get(), nElements);
+		}
 
 		int size() const {
 			return nElements; 
@@ -53,13 +52,17 @@ struct ListeActeurs {
 
 struct Film
 {
-	std::string titre, realisateur; // Titre et nom du réalisateur (on suppose qu'il n'y a qu'un réalisateur).
-	int anneeSortie, recette; // Année de sortie et recette globale du film en millions de dollars
-	ListeActeurs acteurs;
+	std::string titre = "Titre inconnu";
+	std::string realisateur = "Réalisateur inconnu"; // Titre et nom du réalisateur (on suppose qu'il n'y a qu'un réalisateur).
+	int anneeSortie = 0;
+	int recette = 0; // Année de sortie et recette globale du film en millions de dollars
+	ListeActeurs acteurs{0};
 };
 
 struct Acteur
 {
-	std::string nom; int anneeNaissance; char sexe;
-	ListeFilms joueDans;
+	std::string nom = "Nom inconnu"; 
+	int anneeNaissance = 0;
+	char sexe = 'X';
+	//ListeFilms joueDans;
 };

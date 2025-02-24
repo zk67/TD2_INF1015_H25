@@ -94,13 +94,13 @@ void ListeFilms::enleverFilm(const Film* film)
 //TODO: Une fonction pour trouver un Acteur par son nom dans une ListeFilms, qui retourne un pointeur vers l'acteur, ou nullptr si l'acteur n'est pas trouvé.  Devrait utiliser span.
 //[
 // Voir la NOTE ci-dessous pourquoi Acteur* n'est pas const.  Noter que c'est valide puisque c'est la struct uniquement qui est const dans le paramètre, et non ce qui est pointé par la struct.
-span<Acteur*> ListeActeurs::spanListeActeurs() const { return span<Acteur*>(ptrActeurs.get(), nElements); }
+span<shared_ptr<Acteur>> ListeActeurs::spanListeActeurs() const { return span<shared_ptr<Acteur>>(ptrActeurs.get(), nElements); }
 
 //NOTE: Doit retourner un Acteur modifiable, sinon on ne peut pas l'utiliser pour modifier l'acteur tel que demandé dans le main, et on ne veut pas faire écrire deux versions.
-Acteur* ListeFilms::trouverActeur(const string& nomActeur) const
+shared_ptr<Acteur> ListeFilms::trouverActeur(const string& nomActeur) const
 {
 	for (const Film* film : enSpan()) {
-		for (Acteur* acteur : (film->acteurs).spanListeActeurs()) {
+		for (const shared_ptr<Acteur>& acteur : (film->acteurs).spanListeActeurs()) {
 			if (acteur->nom == nomActeur)
 				return acteur;
 		}
@@ -233,22 +233,25 @@ ListeFilms::~ListeFilms()
 }
 //]
 
-void afficherActeur(const Acteur& acteur)
+void afficherActeur(const Acteur& acteur, ostream& os)
 {
 	cout << "  " << acteur.nom << ", " << acteur.anneeNaissance << " " << acteur.sexe << endl;
 }
 
 //TODO: Une fonction pour afficher un film avec tous ces acteurs (en utilisant la fonction afficherActeur ci-dessus).
 //[
-void afficherFilm(const Film& film)
+//void afficherFilm(const Film& film)
+ostream& operator<<(ostream& os, const Films& film)
 {
-	cout << "Titre: " << film.titre << endl;
-	cout << "  Réalisateur: " << film.realisateur << "  Année :" << film.anneeSortie << endl;
-	cout << "  Recette: " << film.recette << "M$" << endl;
+	os << "Titre: " << film.titre << endl;
+	os << "  Réalisateur: " << film.realisateur << "  Année :" << film.anneeSortie << endl;
+	os << "  Recette: " << film.recette << "M$" << endl;
 
-	cout << "Acteurs:" << endl;
-	for (const Acteur* acteur : (film.acteurs).spanListeActeurs())
-		afficherActeur(*acteur);
+	os << "Acteurs:" << endl;
+	for (const shared_ptr<Acteur>& acteur : (film.acteurs).spanListeActeurs()) {
+		afficherActeur(*acteur, os);
+	}
+	return os;
 }
 //]
 
