@@ -100,7 +100,7 @@ span<Acteur*> ListeActeurs::spanListeActeurs() const { return span<Acteur*>(ptrA
 Acteur* ListeFilms::trouverActeur(const string& nomActeur) const
 {
 	for (const Film* film : enSpan()) {
-		for (Acteur* acteur : spanListeActeurs(film->acteurs)) {
+		for (Acteur* acteur : (film->acteurs).spanListeActeurs()) {
 			if (acteur->nom == nomActeur)
 				return acteur;
 		}
@@ -134,7 +134,7 @@ Film* lireFilm(istream& fichier//[
 , ListeFilms& listeFilms//]
 )
 {
-	Film film = {};
+	Film* film = {};
 	film.titre       = lireString(fichier);
 	film.realisateur = lireString(fichier);
 	film.anneeSortie = lireUint16 (fichier);
@@ -143,9 +143,9 @@ Film* lireFilm(istream& fichier//[
 	//[
 	Film* filmp = new Film( film ); //NOTE: On aurait normalement fait le "new" au début de la fonction pour directement mettre les informations au bon endroit; on le fait ici pour que le code ci-dessus puisse être directement donné aux étudiants sans qu'ils aient le "new" déjà écrit.
 	cout << "Création Film " << film.titre << endl;
-	filmp->acteurs.elements = new Acteur*[filmp->acteurs.nElements];
+	filmp->acteurs.elements = new Acteur*[filmp->acteurs.size()];
 
-	for (Acteur*& acteur : spanListeActeurs(filmp->acteurs)) {
+	for (Acteur*& acteur : (filmp->acteurs).spanListeActeurs()) {
 		acteur = 
 		//]
 		lireActeur(fichier//[
@@ -210,13 +210,13 @@ bool joueEncore(const Acteur* acteur)
 }
 void detruireFilm(Film* film)
 {
-	for (Acteur* acteur : spanListeActeurs(film->acteurs)) {
+	for (Acteur* acteur : (film->acteurs).spanListeActeurs()) {
 		acteur->joueDans.enleverFilm(film);
 		if (!joueEncore(acteur))
 			detruireActeur(acteur);
 	}
 	cout << "Destruction Film " << film->titre << endl;
-	delete[] film->acteurs.elements;
+	//pointeur intelligent se supprime tout seul
 	delete film;
 }
 //]
@@ -247,7 +247,7 @@ void afficherFilm(const Film& film)
 	cout << "  Recette: " << film.recette << "M$" << endl;
 
 	cout << "Acteurs:" << endl;
-	for (const Acteur* acteur : spanListeActeurs(film.acteurs))
+	for (const Acteur* acteur : (film.acteurs).spanListeActeurs())
 		afficherActeur(*acteur);
 }
 //]

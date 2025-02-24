@@ -29,8 +29,26 @@ private:
 };
 
 struct ListeActeurs {
-	int capacite, nElements;
-	unique_ptr<Acteur* []> ptrActeurs ; // Pointeur vers un tableau de Acteur*, chaque Acteur* pointant vers un Acteur.
+	private:
+		int capacite, nElements;
+		unique_ptr<Acteur* []> ptrActeurs ; // Pointeur vers un tableau de Acteur*, chaque Acteur* pointant vers un Acteur.
+
+	public:
+		ListeActeurs(int nouvelleCap) {
+			capacite = nouvelleCap;
+			nElements = 0;
+			ptrActeurs = make_unique<Acteur*[]>(capacite);
+		}
+
+		std::span<Acteur*> spanListeActeurs() const;
+		//{
+		//	return span<Acteur*>(ptrActeurs.get(), nElements);
+		//}
+
+		int size() const {
+			return nElements; 
+		}
+
 };
 
 struct Film
